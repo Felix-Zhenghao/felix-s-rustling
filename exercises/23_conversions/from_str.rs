@@ -42,14 +42,17 @@ impl FromStr for Person {
     type Err = ParsePersonError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let components: Vec<&str> = s.split(',');
-        if components.len() != 2 {Err(ParsePersonError::BadLen)} else {
-            if components[0].is_empty() {Err(ParsePersonError::NoName)} else if components[1].parse::<u8>().is_err(){
-                Err(ParsePersonError::ParseInt(components[1]))         
-            }
-        }
+        let components: Vec<&str> = s.split(',').collect();
+        if components.len() != 2 {Err(ParsePersonError::BadLen)?}
 
-        Person {name:components[0],age:components[1]}
+        let name = components[0];
+        if name.is_empty() {Err(ParsePersonError::NoName)?}
+
+        let age = components[1].parse::<u8>().map_err(|x| ParsePersonError::ParseInt(x))?;
+
+        Ok(Person {name: name.to_string(), age: age})
+
+
 
 
     }
